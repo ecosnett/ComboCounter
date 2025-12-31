@@ -4,12 +4,15 @@ import time
 import pyttsx3
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 
-hits = ["1", "2", "3", "4", "5", "6", "roll", "lean"]
-weights = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.2, 0.2]
-intervals = {1:0.0, 2:0.25, 3:0.5, 4:0.75, 5:1, 5:1.5, 6:2, }
+hits = {"jab": 1, "cross": 2, "look": 2, "rook": 2, "lut": 2, "rut": 2, "lunder": 2, "runder": 2, "lip": 1, "rip": 1, "lean": 2}
+right = ["cross", "rook", "rut", "runder", "rip"]
+left = ["jab", "look", "lut", "lunder", "lip"]
+intervals = {1:0.0, 2:0.5, 3:1}
 keys = list(intervals.keys())
 intWeights = [1/k for k in keys]
 length = ""
+current = []
+used = []
 
 app = Flask(__name__)
 
@@ -48,7 +51,7 @@ def speak(voice):
   engine.runAndWait()
 
 def random_hits():
-        hit = np.random.choice(hits, size=int(length), replace=True, p=weights)
+        hit = rd.choice(hits, replace=True)
         return hit
 
 def callout():
@@ -60,4 +63,24 @@ def callout():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+def IntervalCalc():
+    interval = intervals[hits[current[0]]]
+    if (current[0] in left and current[1] in left) or (current[0] in right and current[1] in right):
+        return interval
+
+    return interval +1
+
+def Start():
+    if not bool(current):
+        current.append(random_hits)
+
+    current.append(random_hits)
+    WaitTime = IntervalCalc()
+    speak(current[0])
+    time.sleep(WaitTime)
+
+    
+
 
